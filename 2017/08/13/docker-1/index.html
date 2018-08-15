@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Docker的学习（一）----入门</title><link rel="shortcut icon" href="/images/avatar.png"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/9.2.0/styles/github.min.css"><script src="//cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js"></script></head><body><nav class="main-nav"><a href="/">Home</a><a href="/archives">Archives</a></nav><div class="profile"><section id="wrapper"><header id="header"><a href="/about"><img class="2x" id="avatar" src="/images/avatar.png"></a><h1>0x00hly</h1><h2></h2></header></section></div><section class="post" id="wrapper"><article><header><h1>Docker的学习（一）----入门</h1><h2 class="headline">8月 13, 2017 10:47·1,998 words
+·8 minutes read<span class="tags"></span></h2></header><div id="toc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mac-安装"><span class="toc-text">Mac 安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux-安装"><span class="toc-text">Linux 安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用过程"><span class="toc-text">使用过程</span></a></li></ol></div><section id="post-body"><p>之前有大致了解学习过Docker的基础操作，后来由于生活、工作搁置了对它的学习。现在要重拾起来，从头再学习，并记录在Blog中，以便复习。</p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>每学一门新技术，都必须了解它的起源、作用。简介内容摘自网上，保存用于祥读。</p>
+<p>docker的英文本意是码头工人，也就是搬运工，这种搬运工搬运的是集装箱（Container），集装箱里面装的可不是商品货物，而是任意类型的App，Docker把App（叫Payload）装在Container内，通过Linux Container技术的包装将App变成一种标准化的、可移植的、自管理的组件，这种组件可以在你的latop上开发、调试、运行，最终非常方便和一致地运行在production环境下。</p>
+<p>Docker的核心底层技术是LXC（Linux Container），Docker在其上面加了薄薄的一层，添加了许多有用的功能。</p>
+<p>Docker提供了一种可移植的配置标准化机制，允许你一致性地在不同的机器上运行同一个Container；而LXC本身可能因为不同机器的不同配置而无法方便地移植运行；</p>
+<p>Docker以App为中心，为应用的部署做了很多优化，而LXC的帮助脚本主要是聚焦于如何机器启动地更快和耗更少的内存；</p>
+<p>Docker为App提供了一种自动化构建机制（Dockerfile），包括打包，基础设施依赖管理和安装等等；</p>
+<p>Docker提供了一种类似git的Container版本化的机制，允许你对你创建过的容器进行版本管理，依靠这种机制，你还可以下载别人创建的Container，甚至像git那样进行合并；</p>
+<p>Docker Container是可重用的，依赖于版本化机制，你很容易重用别人的Container（叫Image），作为基础版本进行扩展；</p>
+<p>Docker Container是可共享的，有点类似github一样，Docker有自己的INDEX，你可以创建自己的Docker用户并上传和下载Docker Image；</p>
+<p>Docker提供了很多的工具链，形成了一个生态系统；这些工具的目标是自动化、个性化和集成化，包括对PAAS平台的支持等；</p>
+<p>那么Docker有什么用呢？对于运维来说，Docker提供了一种可移植的标准化部署过程，使得规模化、自动化、异构化的部署成为可能甚至是轻松简单的事情；而对于开发者来说，Docker提供了一种开发环境的管理方法，包括映像、构建、共享等功能，而后者是本文的主题。</p>
+<p>Docker能处理的事情包括：</p>
+<ul>
+<li>隔离应用依赖</li>
+<li>创建应用镜像并进行复制</li>
+<li>创建容易分发的即启即用的应用</li>
+<li>允许实例简单、快速地扩展</li>
+<li>测试应用并随后销毁它们</li>
+</ul>
+<p>Docker三大核心概念</p>
+<ul>
+<li>镜像 Image ：类似于虚拟机的快照，但更轻量。</li>
+<li>容器 Container ：镜像的一个运行实例，可以独立运行一个或一组应用。</li>
+<li>仓库 Repository ：集中存放镜像的地方</li>
+</ul>
+<h3 id="Mac-安装"><a href="#Mac-安装" class="headerlink" title="Mac 安装"></a>Mac 安装</h3><blockquote>
+<p>系统： Mac X 10.11.6</p>
+</blockquote>
+<p>我参考了官方文档，<a href="https://docs.docker.com/docker-for-mac/" target="_blank" rel="noopener">地址</a></p>
+<p>Mac安装Docker很简单，只要下载安装包Docker.dmg，就行了。</p>
+<h3 id="Linux-安装"><a href="#Linux-安装" class="headerlink" title="Linux 安装"></a>Linux 安装</h3><blockquote>
+<p>系统：CentOS 6.8 64位</p>
+</blockquote>
+<p>由于VPS系统内核为2.6，不满足运行Docker的要求，需要先进行内核升级。</p>
+<p>内核升级参考<a href="https://segmentfault.com/a/1190000000733628" target="_blank" rel="noopener">地址</a></p>
+<p>然后就sad了，我目前用的是搬瓦工的VPS，它是OpenVZ，内核没法升级，这怎么搞，这没法搞啊。</p>
+<p>不过之前有在Ubuntu上安装过，具体还是参考<a href="https://docs.docker.com/engine/installation/linux/ubuntulinux/" target="_blank" rel="noopener">官方文档</a></p>
+<h3 id="使用过程"><a href="#使用过程" class="headerlink" title="使用过程"></a>使用过程</h3><p>为了解决国内使用官方Docker Hub时遇到的稳定性及速度问题，我使用了DaoCloud提供的加速器服务。详细配置过程见<a href="https://www.daocloud.io/mirror.html#accelerator-doc" target="_blank" rel="noopener">官方文档</a></p>
+<p>官方Docker Hub 其实就是个Registry，但是它是公有的。它提供存储镜像数据，并且提供拉取和上传镜像的功能。</p>
+<ul>
+<li><p>镜像</p>
+<ul>
+<li><p>获取镜像</p>
+<p>  Usage:  docker pull [OPTIONS] NAME[:TAG|@DIGEST]</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull ubuntu:16.10</span><br></pre></td></tr></table></figure>
+<p>  命令分析：</p>
+<p>  ubuntu为镜像名称，’16.10’为Tag</p>
+</li>
+<li><p>删除镜像</p>
+<p>  Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER…]</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm 42118e3df429</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取镜像列表</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker images</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">→ docker images</span><br><span class="line">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE</span><br><span class="line">ubuntu              16.10               175e129b1641        2 weeks ago         100.1 MB</span><br><span class="line">ubuntu              latest              42118e3df429        2 weeks ago         124.8 MB</span><br></pre></td></tr></table></figure>
+<p>上面中ubuntu并不是镜像名称，而是代表了一个名为ubuntu的Repository，同时在这个Repository下面有一系列打了Tag的Image，IMAGE ID 是一个GUID，为了方便也可以通过Repository:tag来引用。IMAGE ID相同说明Tag指向了同一个镜像文件。</p>
+<ul>
+<li><p>容器</p>
+<ul>
+<li><p>运行第一个容器</p>
+<p>  使用 <figure class="highlight docker"><figcaption><span>run ```命令</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">Usage:  docker <span class="keyword">run</span> [OPTIONS] IMAGE [COMMAND] [ARG...]</span><br></pre></td></tr></table></figure></p>
+<p>  docker run –name first_container -it ubuntu /bin/bash</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">    命令分析：</span><br><span class="line"></span><br><span class="line">    &gt;--name string      Assign a name to the container</span><br><span class="line">    -i, --interactive    Keep STDIN open even if not attached    </span><br><span class="line">    -t, --tty        Allocate a pseudo-TTY</span><br><span class="line"></span><br><span class="line">    --name的作用是为容器分配一个名称，可以用容器的名称来替代容器ID。容器名称有助于分辨容器，当构建容器和应用程序之间的逻辑连接时，容器的名称也有助于从逻辑上理解连接关系。</span><br><span class="line"></span><br><span class="line">    -i的作用是保证容器中得STDIN（标准输入）是开启的，甚至并没有附着在容器上，从而保证了持久的标准输入。</span><br><span class="line"></span><br><span class="line">    -t的作用是让Docker为被创建的容器分配一个伪tty，这样新建的容器才能提供一个交互式shell。</span><br><span class="line"></span><br><span class="line">    /bin/bash 是告诉Docker要在容器中运行/bin/bash命令，从而启动一个Bash Shell。</span><br><span class="line"></span><br><span class="line">    在网上教材中会有使用 ```ip a``` 或者 ```ifconfig``` 来检查容器的网络接口，但是在我的容器中 ``` bash: ifconfig: command not found ``` 。其实是由于设计哲学就是不推荐里面设IP，所以系统中就没有安装。</span><br><span class="line"></span><br><span class="line">    输入命令 ```exit``` 就可以退出容器返回到宿主机上。此时容器已经停止，因为只有在指定的/bin/bash命令处于运行状态的时候，我们容器也才会相应地处于运行状态。一旦退出容器，/bin/bash命令也就结束了，这时容器也随之停止了运行。</span><br><span class="line"></span><br><span class="line">* 获取容器列表</span><br><span class="line"></span><br><span class="line">    Usage:  docker ps [OPTIONS]</span><br><span class="line"></span><br><span class="line">    * 获取当前正在运行的容器列表</span><br></pre></td></tr></table></figure>
+<pre><code>docker ps
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* 获取当前系统所有的容器列表</span><br></pre></td></tr></table></figure>
+
+docker ps -a
+</code></pre>  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* 容器的启动与停止</span><br><span class="line"></span><br><span class="line">    &gt;start     Start one or more stopped containers</span><br><span class="line">    stop      Stop one or more running containers</span><br><span class="line"></span><br><span class="line">    ``` docker start CONTAINER_NAME/CONTAINER_ID ``` 根据容器名称/容器ID来启动容器</span><br><span class="line"></span><br><span class="line">    ``` docker stop CONTAINER_NAME/CONTAINER_ID ``` 根据容器名称/容器ID来停止容器</span><br><span class="line"></span><br><span class="line">* attach</span><br><span class="line"></span><br><span class="line">     &gt;attach   Attach to a running container</span><br><span class="line"></span><br><span class="line">    Usage:  docker attach [OPTIONS] CONTAINER</span><br><span class="line"></span><br><span class="line">     ```docker attach 0406e38d7fea``` 可以附着到一个容器ID为0406e38d7fea的并且正在运行的容器。</span><br><span class="line"></span><br><span class="line">* exec</span><br><span class="line"></span><br><span class="line">    &gt; exec      Run a command in a running container</span><br><span class="line"></span><br><span class="line">    Usage:  docker exec [OPTIONS] CONTAINER COMMAND [ARG...]</span><br><span class="line"></span><br><span class="line">    通过docker exec命令在容器内部额外启动新进程。可以在容器内运行的进程有两种类型：后台任务和交互式任务。后台任务在容器内运行且没有交互需求，而交互式任务则保持在前台运行。对于需要在容器内部打开shell的任务，交互式任务是很实用的。</span><br><span class="line"></span><br><span class="line">    * 后台任务</span><br><span class="line"></span><br><span class="line">        &gt;-d, --detach   Detached mode: run command in the background</span><br><span class="line"></span><br><span class="line">        ```docker exec -d 0406e38d7fea touch ~/test</span><br></pre></td></tr></table></figure>
+<pre><code>命令分析：
+
+-d的作用是开启后台模式，将命令行命令运行在后台。该命令的作用是在&apos;~/&apos;目录下创建了个test文件
+</code></pre><ul>
+<li><p>交互式任务</p>
+<blockquote>
+<p>-i, –interactive    Keep STDIN open even if not attached<br>  -t, –tty            Allocate a pseudo-TTY</p>
+</blockquote>
+<p>  docker exec -it 0406e38d7fea /bin/bash</p>
+</li>
+</ul>
+</li>
+<li><p>容器的删除</p>
+<p>  Usage:  docker rm [OPTIONS] CONTAINER [CONTAINER…]</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm 0406e38d7fea</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行中的Docker容器是无法删除的</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</section><nav id="post-nav"><span class="prev"><a href="/2017/08/13/docker-2/"><span class="arrow">←</span>Newer Posts</a></span><span class="next"><a href="/2017/08/13/dcoker-3/">Older Posts<span class="arrow">→</span></a></span></nav></article></section><footer id="footer"><div id="social"><a class="symbol" href="https://github.com/fuzhouxxdong"><i class="fa fa-github"></i></a></div><p class="small">© Copyright 2018 &nbsp;<i class="fa fa-heart" aria-hidden="true">&nbsp;Dxx</i></p><p class="small">Powered by &nbsp;<a href="https://hexo.io/">Hexo &nbsp;</a>Theme By &nbsp;<a href="https://github.com/fuzhouxxdong/hexo-theme-dxx">Dxx</a></p></footer><script>hljs.initHighlightingOnLoad();</script></body></html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Python的logging模块的复习和使用</title><link rel="shortcut icon" href="/images/avatar.png"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/9.2.0/styles/github.min.css"><script src="//cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js"></script></head><body><nav class="main-nav"><a href="/">Home</a><a href="/archives">Archives</a></nav><div class="profile"><section id="wrapper"><header id="header"><a href="/about"><img class="2x" id="avatar" src="/images/avatar.png"></a><h1>0x00hly</h1><h2></h2></header></section></div><section class="post" id="wrapper"><article><header><h1>Python的logging模块的复习和使用</h1><h2 class="headline">8月 13, 2017 11:02·1,317 words
+·6 minutes read<span class="tags"></span></h2></header><div id="toc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#logging"><span class="toc-text">logging</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Level"><span class="toc-text">Level</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Logger"><span class="toc-text">Logger</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Handler"><span class="toc-text">Handler</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Filter"><span class="toc-text">Filter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Formatter"><span class="toc-text">Formatter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用过程"><span class="toc-text">使用过程</span></a></li></ol></div><section id="post-body"><p>在之前的多个项目中都有用到过logging模块，虽然用过，但没有研究过，只是在每个代码文件中使用<code>logger=logging.getLogger(__name__)</code>这样简单粗暴的方法。</p>
+<p>在这次的使用经历中，觉得logging模块真的很不错。</p>
+<h3 id="logging"><a href="#logging" class="headerlink" title="logging"></a>logging</h3><p>使用logging前，必须先要了解它的重要概念。</p>
+<ul>
+<li><strong>Logging Levels</strong></li>
+<li><strong>Logger Objects</strong></li>
+<li><strong>Handler Objects</strong></li>
+<li><strong>Formatter Objects</strong></li>
+<li><strong>Filter Objects</strong></li>
+</ul>
+<h3 id="Level"><a href="#Level" class="headerlink" title="Level"></a>Level</h3><p>Level 级别。只有在日志消息的级别大于logger和handler设定的级别，才会显示。</p>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>何时使用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOTSET</td>
+<td>不设置级别</td>
+<td>0</td>
+</tr>
+<tr>
+<td>DEBUG</td>
+<td>详细信息，调试时</td>
+<td>10</td>
+</tr>
+<tr>
+<td>INFO</td>
+<td>证明事情按预期工作。</td>
+<td>20</td>
+</tr>
+<tr>
+<td>WARNING</td>
+<td>表明发生了一些意外，或者不久的将来会发生问题（如‘磁盘满了’）。软件还是在正常工作。</td>
+<td>30</td>
+</tr>
+<tr>
+<td>ERROR</td>
+<td>由于更严重的问题，软件已不能执行一些功能了。</td>
+<td>40</td>
+</tr>
+<tr>
+<td>CRITICAL</td>
+<td>严重错误，表明软件已不能继续运行了。</td>
+<td>50</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Logger"><a href="#Logger" class="headerlink" title="Logger"></a>Logger</h3><p>Logger 记录器，暴露了应用程序代码能直接使用的接口。</p>
+<p>Logger是一个树形层级结构，在使用接口debug，info，warn，error，critical之前必须创建Logger实例，即创建一个记录器，如果没有显式的进行创建，则默认创建一个root logger，并应用默认的日志级别(WARN)，处理器Handler(StreamHandler，即将日志信息打印输出在标准输出上)，和格式化器Formatter(默认的格式即为第一个简单使用程序中输出的格式)。</p>
+<p>创建方法: <code>logger = logging.getLogger(name=None)</code>。如果不指定name则返回root logger对象。</p>
+<p>常用方法如下：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>addHandler(self, hdlr)</td>
+<td>Add the specified handler to this logger.</td>
+</tr>
+<tr>
+<td>removeHandler(self, hdlr)</td>
+<td>Remove the specified handler from this logger.</td>
+</tr>
+<tr>
+<td>setLevel(self, level)</td>
+<td>Set the logging level of this logger.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h3><p>Handler 处理器，将（记录器产生的）日志记录发送至合适的目的地。</p>
+<p>比较常用的有三个，StreamHandler，FileHandler，NullHandler，详情可以访问<a href="!https://docs.python.org/2.7/library/logging.handlers.html#module-logging.handlers">地址</a></p>
+<p>Handler处理器类型如下：</p>
+<ul>
+<li>StreamHandler</li>
+<li>FileHandler</li>
+<li>NullHandler</li>
+<li>WatchedFileHandler</li>
+<li>RotatingFileHandler</li>
+<li>TimedRotatingFileHandler</li>
+<li>SocketHandler</li>
+<li>DatagramHandler</li>
+<li>SysLogHandler</li>
+<li>NTEventLogHandler</li>
+<li>SMTPHandler</li>
+<li>MemoryHandler</li>
+<li>HTTPHandler</li>
+</ul>
+<h3 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h3><p>过滤器，提供了更好的粒度控制，它可以决定输出哪些日志记录。</p>
+<p>使用Formatter对象设置日志信息最后的规则、结构和内容，默认的时间格式为%Y-%m-%d %H:%M:%S。</p>
+<p>创建方法: <code>formatter = logging.Formatter(fmt=None, datefmt=None)</code></p>
+<blockquote>
+<p>其中，fmt是消息的格式化字符串，datefmt是日期字符串。如果不指明fmt，将使用’%(message)s’。如果不指明datefmt，将使用ISO8601日期格式。</p>
+</blockquote>
+<h3 id="Formatter"><a href="#Formatter" class="headerlink" title="Formatter"></a>Formatter</h3><p>格式化器，指明了最终输出中日志记录的布局。</p>
+<p>Handlers和Loggers可以使用Filters来完成比级别更复杂的过滤。Filter基类只允许特定Logger层次以下的事件。例如用‘A.B’初始化的Filter允许Logger ‘A.B’, ‘A.B.C’, ‘A.B.C.D’, ‘A.B.D’等记录的事件，logger‘A.BB’, ‘B.A.B’ 等就不行。 如果用空字符串来初始化，所有的事件都接受。</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>%(levelno)s</td>
+<td>打印日志级别的数值</td>
+</tr>
+<tr>
+<td>%(levelname)s</td>
+<td>打印日志级别名称</td>
+</tr>
+<tr>
+<td>%(pathname)s</td>
+<td>打印当前执行程序的路径</td>
+</tr>
+<tr>
+<td>%(filename)s</td>
+<td>打印当前执行程序名称</td>
+</tr>
+<tr>
+<td>%(funcName)s</td>
+<td>打印日志的当前函数</td>
+</tr>
+<tr>
+<td>%(lineno)d</td>
+<td>打印日志的当前行号</td>
+</tr>
+<tr>
+<td>%(asctime)s</td>
+<td>打印日志的时间</td>
+</tr>
+<tr>
+<td>%(thread)d</td>
+<td>打印线程id</td>
+</tr>
+<tr>
+<td>%(threadName)s</td>
+<td>打印线程名称</td>
+</tr>
+<tr>
+<td>%(process)d</td>
+<td>打印进程ID</td>
+</tr>
+<tr>
+<td>%(message)s</td>
+<td>打印日志信息</td>
+</tr>
+</tbody>
+</table>
+<h3 id="使用过程"><a href="#使用过程" class="headerlink" title="使用过程"></a>使用过程</h3><p>在项目启动中导入logging模块，然后进行配置，logging标准模块支持三种配置方式: dictConfig，fileConfig，listen。其中，dictConfig是通过一个字典进行配置Logger，Handler，Filter，Formatter；fileConfig则是通过一个文件进行配置；而listen则监听一个网络端口，通过接收网络数据来进行配置。当然，除了以上集体化配置外，也可以直接调用Logger，Handler等对象中的方法在代码中来显式配置。</p>
+<p>basicConfig关键字参数</p>
+<table>
+<thead>
+<tr>
+<th>关键字</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>filename</td>
+<td>创建一个FileHandler，使用指定的文件名，而不是使用StreamHandler。</td>
+</tr>
+<tr>
+<td>filemode</td>
+<td>如果指明了文件名，指明打开文件的模式（如果没有指明filemode，默认为’a’）。</td>
+</tr>
+<tr>
+<td>format</td>
+<td>handler使用指明的格式化字符串。</td>
+</tr>
+<tr>
+<td>datefmt</td>
+<td>使用指明的日期／时间格式。</td>
+</tr>
+<tr>
+<td>level</td>
+<td>指明根logger的级别。</td>
+</tr>
+<tr>
+<td>stream</td>
+<td>使用指明的流来初始化StreamHandler。该参数与’filename’不兼容，如果两个都有，’stream’被忽略。</td>
+</tr>
+</tbody>
+</table>
+<p>例子：<br>logging.yaml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">logging:</span><br><span class="line">    version: 1</span><br><span class="line">    formatters:</span><br><span class="line">      brief:</span><br><span class="line">        format: &apos;%(message)s&apos;</span><br><span class="line">      default:</span><br><span class="line">        format: &apos;%(asctime)s %(levelname)-8s %(name)-15s %(message)s&apos;</span><br><span class="line">        datefmt: &apos;%Y-%m-%d %H:%M:%S&apos;</span><br><span class="line">      fluent_fmt:</span><br><span class="line">        &apos;()&apos;: fluent.handler.FluentRecordFormatter</span><br><span class="line">        format:</span><br><span class="line">          loglevel: &apos;%(levelname)s&apos;</span><br><span class="line">          hostname: &apos;%(hostname)s&apos;</span><br><span class="line">          where: &apos;%(module)s.%(funcName)s&apos;</span><br><span class="line">          stack_trace: &apos;%(exc_text)s&apos;</span><br><span class="line">    handlers:</span><br><span class="line">        console:</span><br><span class="line">            class : logging.StreamHandler</span><br><span class="line">            level: DEBUG</span><br><span class="line">            formatter: default</span><br><span class="line">            stream: ext://sys.stdout</span><br><span class="line">        fluent_dev:</span><br><span class="line">            class: fluent.handler.FluentHandler</span><br><span class="line">            host: 127.0.0.1</span><br><span class="line">            port: 24224</span><br><span class="line">            tag: test.dev</span><br><span class="line">            formatter: fluent_fmt</span><br><span class="line">            level: DEBUG</span><br><span class="line">        fluent_prod:</span><br><span class="line">            class: fluent.handler.FluentHandler</span><br><span class="line">            host: 127.0.0.1</span><br><span class="line">            port: 24224</span><br><span class="line">            tag: test.prod</span><br><span class="line">            formatter: fluent_fmt</span><br><span class="line">            level: DEBUG</span><br><span class="line">        null:</span><br><span class="line">            class: logging.NullHandler</span><br><span class="line"></span><br><span class="line">    loggers:</span><br><span class="line">        amqp:</span><br><span class="line">            handlers: [null]</span><br><span class="line">            propagate: False</span><br><span class="line">        conf:</span><br><span class="line">            handlers: [null]</span><br><span class="line">            propagate: False</span><br><span class="line">        dev:</span><br><span class="line">            handlers: [console, fluent_dev]</span><br><span class="line">            level: DEBUG</span><br><span class="line">            propagate: False</span><br><span class="line">        prod:</span><br><span class="line">            handlers: [console, fluent_prod]</span><br><span class="line">            level: DEBUG</span><br><span class="line">            propagate: False</span><br><span class="line">        &apos;&apos;: # root logger</span><br><span class="line">            handlers: [console]</span><br><span class="line">            level: DEBUG</span><br><span class="line">            propagate: False</span><br></pre></td></tr></table></figure></p>
+<p>导入配置方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import yaml</span><br><span class="line">import logging</span><br><span class="line">import logging.config</span><br><span class="line"></span><br><span class="line">with open(&apos;logging.yaml&apos;) as fd:</span><br><span class="line">    conf = yaml.load(fd)</span><br><span class="line"></span><br><span class="line">logging.config.dictConfig(conf[&apos;logging&apos;])</span><br></pre></td></tr></table></figure></p>
+<p>获取logger<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logger = logging.getLogger(loggername)</span><br></pre></td></tr></table></figure></p>
+</section><nav id="post-nav"><span class="prev"><a href="/2017/08/13/python-set-1/"><span class="arrow">←</span>Newer Posts</a></span><span class="next"><a href="/2017/08/13/python-list-1/">Older Posts<span class="arrow">→</span></a></span></nav></article></section><footer id="footer"><div id="social"><a class="symbol" href="https://github.com/fuzhouxxdong"><i class="fa fa-github"></i></a></div><p class="small">© Copyright 2018 &nbsp;<i class="fa fa-heart" aria-hidden="true">&nbsp;Dxx</i></p><p class="small">Powered by &nbsp;<a href="https://hexo.io/">Hexo &nbsp;</a>Theme By &nbsp;<a href="https://github.com/fuzhouxxdong/hexo-theme-dxx">Dxx</a></p></footer><script>hljs.initHighlightingOnLoad();</script></body></html>

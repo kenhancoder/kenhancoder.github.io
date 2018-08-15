@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width, initial-scale=1"><title>对Tornado异步操作Sqlalchemy方法的选定</title><link rel="shortcut icon" href="/images/avatar.png"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/9.2.0/styles/github.min.css"><script src="//cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js"></script></head><body><nav class="main-nav"><a href="/">Home</a><a href="/archives">Archives</a></nav><div class="profile"><section id="wrapper"><header id="header"><a href="/about"><img class="2x" id="avatar" src="/images/avatar.png"></a><h1>0x00hly</h1><h2></h2></header></section></div><section class="post" id="wrapper"><article><header><h1>对Tornado异步操作Sqlalchemy方法的选定</h1><h2 class="headline">8月 13, 2017 11:05·831 words
+·4 minutes read<span class="tags"></span></h2></header><div id="toc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#使用原因"><span class="toc-text">使用原因</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Celery"><span class="toc-text">Celery</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#安装环境"><span class="toc-text">安装环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Celery方法示例"><span class="toc-text">Celery方法示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#run-on-executor方法示例"><span class="toc-text">run_on_executor方法示例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol></div><section id="post-body"><h3 id="使用原因"><a href="#使用原因" class="headerlink" title="使用原因"></a>使用原因</h3><p>在一个实时通讯的项目中，由于需要使用Websocket这一协议，便在Python框架中选定了Tornado，也同时使用了Sqlalchemy这一ORM框架。<br>大家都知道Tornado有异步非阻塞特性，但Sqlalchemy是同步操作，这会大大影响性能，会影响的用户体验。<br>为了能解决这一问题，我便在网上搜寻资料，发现有使用Celery的，有使用run_on_executor装饰器的，甚至自己封装异步Sqlalchemy的等等方法。<br>由于缺少实践，我觉定对Celery、run_on_executor进行尝试    </p>
+<h3 id="Celery"><a href="#Celery" class="headerlink" title="Celery"></a>Celery</h3><p>以下是官方文档的介绍：</p>
+<blockquote>
+<p>Celery 是一个简单、灵活且可靠的，处理大量消息的分布式系统，并且提供维护这样一个系统的必需工具。<br>它是一个专注于实时处理的任务队列，同时也支持任务调度。<br>Celery 有广泛、多样的用户与贡献者社区，你可以通过 IRC 或是 邮件列表 加入我们。<br>Celery 是开源的，使用 BSD 许可证 授权。    </p>
+</blockquote>
+<p>官网地址：<a href="http://docs.jinkan.org/docs/celery/" target="_blank" rel="noopener">http://docs.jinkan.org/docs/celery/</a>    </p>
+<h3 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h3><blockquote>
+<p>服务器：Ubuntu 12.04.5 LTS (GNU/Linux 3.2.0-67-generic x86_64)</p>
+</blockquote>
+<ul>
+<li><p>安装RabbitMQ    </p>
+<ul>
+<li>安装RabbitMQ Server    <ul>
+<li><code>sudo apt-get install rabbitmq-server</code></li>
+<li><blockquote>
+<p>RabbitMQ提供了一些简单实用的命令用于管理服务器运行状态：<br>查看服务器运行状态: enable rabbitmq_management<br>启动服务器:rabbitmq-server start<br>停止服务器:rabbitmq-server stop<br>查看服务器中所有的消息队列信息 :rabbitmqctl list_queues<br>查看服务器种所有的路由信息: rabbitmqctl list_exchanges<br>查看服务器种所有的路由与消息队列绑定信息 :rabbitmq list_bindings   </p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>启用WEB管理台</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/lib/rabbitmq/bin</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./rabbitmq-plugins enable rabbitmq_management</span><br></pre></td></tr></table></figure>
+
+* 添加远程管理账户    
+将下面配置写入/etc/rabbitmq/rabbitmq.conf.d/rabbitmq.config文件中    
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    &#123;rabbit, [&#123;tcp_listeners, [5672]&#125;, &#123;loopback_users, [&quot;ken&quot;]&#125;]&#125;    </span><br><span class="line">].</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/lib/rabbitmq/bin/</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rabbitmqctl add_user ken 123456</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rabbitmqctl set_user_tags ken administrator</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">    sudo rabbitmqctl set_permissions -p / ken &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;</span><br><span class="line">`</span><br></pre></td></tr></table></figure>
+</code></pre><ul>
+<li><p>安装Celery<br>  Celery详情查看<a href="http://docs.jinkan.org/docs/celery/getting-started/first-steps-with-celery.html" target="_blank" rel="noopener">官方文档</a>    </p>
+<ul>
+<li><p>使用pip安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install Celery</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Celery方法示例"><a href="#Celery方法示例" class="headerlink" title="Celery方法示例"></a>Celery方法示例</h3><ul>
+<li>新建一个task.py</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">from celery import Celery</span><br><span class="line"> </span><br><span class="line">celery = Celery(&apos;tasks&apos;, broker=&apos;amqp://&apos;)</span><br><span class="line">celery.conf.CELERY_RESULT_BACKEND = os.environ.get(&apos;CELERY_RESULT_BACKEND&apos;, &apos;amqp&apos;)</span><br><span class="line"></span><br><span class="line">@celery.task(name=&apos;task.db_operation&apos;)</span><br><span class="line">def db_operation(id):</span><br><span class="line">    # 耗时的数据库操作</span><br><span class="line">    pass</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用worker参数执行我们的程序的task    </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">celery -A tasks worker --loglevel=info</span><br></pre></td></tr></table></figure>
+<ul>
+<li>新建一个handler.py</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">import tcelery</span><br><span class="line">tcelery.setup_nonblocking_producer()</span><br><span class="line"></span><br><span class="line">from tasks import db_operation</span><br><span class="line"></span><br><span class="line">calss Resource(RequestHandler):</span><br><span class="line">    @asynchronous</span><br><span class="line">    def get():</span><br><span class="line">        # 参数通过args传递,回调通过callback指定</span><br><span class="line">        db_operation.apply_async(args=[id], callback=self.on_success)</span><br><span class="line">    def on_success(self, response):</span><br><span class="line">        # 获取返回的结果</span><br><span class="line">        resource = response.result</span><br><span class="line">        self.write(resource)</span><br><span class="line">        self.finish()</span><br></pre></td></tr></table></figure>
+<p>此时，Resource的Get请求已经变成异步非阻塞了。</p>
+<h3 id="run-on-executor方法示例"><a href="#run-on-executor方法示例" class="headerlink" title="run_on_executor方法示例"></a>run_on_executor方法示例</h3><ul>
+<li>新建一个handler.py</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">from concurrent.futures import ThreadPoolExecutor</span><br><span class="line">from tornado.concurrent import run_on_executor</span><br><span class="line"></span><br><span class="line">class ChatHandler(web.RequestHandler):</span><br><span class="line">    executor = ThreadPoolExecutor(4)</span><br><span class="line"></span><br><span class="line">    @web.asynchronous</span><br><span class="line">    @gen.coroutine</span><br><span class="line">    def get(self):</span><br><span class="line">        resource = yield self.get_db_operation()</span><br><span class="line">        self.write(resource)</span><br><span class="line">        self.finish()</span><br><span class="line"></span><br><span class="line">    @web.asynchronous</span><br><span class="line">    @gen.coroutine</span><br><span class="line">    def post(self):</span><br><span class="line">        yield self.post_db_operation()</span><br><span class="line">        self.write(&apos;success&apos;)</span><br><span class="line">        self.finish()</span><br><span class="line"></span><br><span class="line">    @run_on_executor</span><br><span class="line">    def get_db_operation(self):</span><br><span class="line">        return resource </span><br><span class="line"></span><br><span class="line">    @run_on_executor</span><br><span class="line">    def post_db_operation(self):</span><br><span class="line">        pass</span><br></pre></td></tr></table></figure>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这一整套走下来，个人觉得使用Celery部署麻烦，而且一旦大量使用Celery，极有可能导致队列长度过长，影响处理效率。最后我选择使用了run_on_executor方法。</p>
+</section><nav id="post-nav"><span class="prev"><a href="/2017/08/13/use-tornado-websocket/"><span class="arrow">←</span>Newer Posts</a></span><span class="next"><a href="/2017/08/13/redis-memcached-compare/">Older Posts<span class="arrow">→</span></a></span></nav></article></section><footer id="footer"><div id="social"><a class="symbol" href="https://github.com/fuzhouxxdong"><i class="fa fa-github"></i></a></div><p class="small">© Copyright 2018 &nbsp;<i class="fa fa-heart" aria-hidden="true">&nbsp;Dxx</i></p><p class="small">Powered by &nbsp;<a href="https://hexo.io/">Hexo &nbsp;</a>Theme By &nbsp;<a href="https://github.com/fuzhouxxdong/hexo-theme-dxx">Dxx</a></p></footer><script>hljs.initHighlightingOnLoad();</script></body></html>
