@@ -1,5 +1,328 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Python的logging模块的复习和使用</title><link rel="shortcut icon" href="/images/avatar.png"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/9.2.0/styles/github.min.css"><script src="//cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js"></script></head><body><nav class="main-nav"><a href="/">Home</a><a href="/archives">Archives</a></nav><div class="profile"><section id="wrapper"><header id="header"><a href="/about"><img class="2x" id="avatar" src="/images/avatar.png"></a><h1>0x00hly</h1><h2></h2></header></section></div><section class="post" id="wrapper"><article><header><h1>Python的logging模块的复习和使用</h1><h2 class="headline">8月 13, 2017 11:02·1,317 words
-·6 minutes read<span class="tags"></span></h2></header><div id="toc"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#logging"><span class="toc-text">logging</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Level"><span class="toc-text">Level</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Logger"><span class="toc-text">Logger</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Handler"><span class="toc-text">Handler</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Filter"><span class="toc-text">Filter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Formatter"><span class="toc-text">Formatter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用过程"><span class="toc-text">使用过程</span></a></li></ol></div><section id="post-body"><p>在之前的多个项目中都有用到过logging模块，虽然用过，但没有研究过，只是在每个代码文件中使用<code>logger=logging.getLogger(__name__)</code>这样简单粗暴的方法。</p>
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="logging," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在之前的多个项目中都有用到过logging模块，虽然用过，但没有研究过，只是在每个代码文件中使用logger=logging.getLogger(__name__)这样简单粗暴的方法。 在这次的使用经历中，觉得logging模块真的很不错。 logging使用logging前，必须先要了解它的重要概念。  Logging Levels Logger Objects Handler Objects">
+<meta name="keywords" content="logging">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python的logging模块的复习和使用">
+<meta property="og:url" content="http://0x00.gq/2017/08/13/python-logging/index.html">
+<meta property="og:site_name" content="0x00hly">
+<meta property="og:description" content="在之前的多个项目中都有用到过logging模块，虽然用过，但没有研究过，只是在每个代码文件中使用logger=logging.getLogger(__name__)这样简单粗暴的方法。 在这次的使用经历中，觉得logging模块真的很不错。 logging使用logging前，必须先要了解它的重要概念。  Logging Levels Logger Objects Handler Objects">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-08-15T07:02:31.815Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python的logging模块的复习和使用">
+<meta name="twitter:description" content="在之前的多个项目中都有用到过logging模块，虽然用过，但没有研究过，只是在每个代码文件中使用logger=logging.getLogger(__name__)这样简单粗暴的方法。 在这次的使用经历中，觉得logging模块真的很不错。 logging使用logging前，必须先要了解它的重要概念。  Logging Levels Logger Objects Handler Objects">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":true},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://0x00.gq/2017/08/13/python-logging/"/>
+
+
+
+
+
+  <title>Python的logging模块的复习和使用 | 0x00hly</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">0x00hly</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://0x00.gq/2017/08/13/python-logging/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="0x00hly">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="0x00hly">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Python的logging模块的复习和使用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-08-13T11:02:22+08:00">
+                2017-08-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index">
+                    <span itemprop="name">Python</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在之前的多个项目中都有用到过logging模块，虽然用过，但没有研究过，只是在每个代码文件中使用<code>logger=logging.getLogger(__name__)</code>这样简单粗暴的方法。</p>
 <p>在这次的使用经历中，觉得logging模块真的很不错。</p>
 <h3 id="logging"><a href="#logging" class="headerlink" title="logging"></a>logging</h3><p>使用logging前，必须先要了解它的重要概念。</p>
 <ul>
@@ -192,7 +515,389 @@
 </tr>
 </tbody>
 </table>
-<p>例子：<br>logging.yaml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">logging:</span><br><span class="line">    version: 1</span><br><span class="line">    formatters:</span><br><span class="line">      brief:</span><br><span class="line">        format: &apos;%(message)s&apos;</span><br><span class="line">      default:</span><br><span class="line">        format: &apos;%(asctime)s %(levelname)-8s %(name)-15s %(message)s&apos;</span><br><span class="line">        datefmt: &apos;%Y-%m-%d %H:%M:%S&apos;</span><br><span class="line">      fluent_fmt:</span><br><span class="line">        &apos;()&apos;: fluent.handler.FluentRecordFormatter</span><br><span class="line">        format:</span><br><span class="line">          loglevel: &apos;%(levelname)s&apos;</span><br><span class="line">          hostname: &apos;%(hostname)s&apos;</span><br><span class="line">          where: &apos;%(module)s.%(funcName)s&apos;</span><br><span class="line">          stack_trace: &apos;%(exc_text)s&apos;</span><br><span class="line">    handlers:</span><br><span class="line">        console:</span><br><span class="line">            class : logging.StreamHandler</span><br><span class="line">            level: DEBUG</span><br><span class="line">            formatter: default</span><br><span class="line">            stream: ext://sys.stdout</span><br><span class="line">        fluent_dev:</span><br><span class="line">            class: fluent.handler.FluentHandler</span><br><span class="line">            host: 127.0.0.1</span><br><span class="line">            port: 24224</span><br><span class="line">            tag: test.dev</span><br><span class="line">            formatter: fluent_fmt</span><br><span class="line">            level: DEBUG</span><br><span class="line">        fluent_prod:</span><br><span class="line">            class: fluent.handler.FluentHandler</span><br><span class="line">            host: 127.0.0.1</span><br><span class="line">            port: 24224</span><br><span class="line">            tag: test.prod</span><br><span class="line">            formatter: fluent_fmt</span><br><span class="line">            level: DEBUG</span><br><span class="line">        null:</span><br><span class="line">            class: logging.NullHandler</span><br><span class="line"></span><br><span class="line">    loggers:</span><br><span class="line">        amqp:</span><br><span class="line">            handlers: [null]</span><br><span class="line">            propagate: False</span><br><span class="line">        conf:</span><br><span class="line">            handlers: [null]</span><br><span class="line">            propagate: False</span><br><span class="line">        dev:</span><br><span class="line">            handlers: [console, fluent_dev]</span><br><span class="line">            level: DEBUG</span><br><span class="line">            propagate: False</span><br><span class="line">        prod:</span><br><span class="line">            handlers: [console, fluent_prod]</span><br><span class="line">            level: DEBUG</span><br><span class="line">            propagate: False</span><br><span class="line">        &apos;&apos;: # root logger</span><br><span class="line">            handlers: [console]</span><br><span class="line">            level: DEBUG</span><br><span class="line">            propagate: False</span><br></pre></td></tr></table></figure></p>
-<p>导入配置方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">import yaml</span><br><span class="line">import logging</span><br><span class="line">import logging.config</span><br><span class="line"></span><br><span class="line">with open(&apos;logging.yaml&apos;) as fd:</span><br><span class="line">    conf = yaml.load(fd)</span><br><span class="line"></span><br><span class="line">logging.config.dictConfig(conf[&apos;logging&apos;])</span><br></pre></td></tr></table></figure></p>
-<p>获取logger<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">logger = logging.getLogger(loggername)</span><br></pre></td></tr></table></figure></p>
-</section><nav id="post-nav"><span class="prev"><a href="/2017/08/13/python-set-1/"><span class="arrow">←</span>Newer Posts</a></span><span class="next"><a href="/2017/08/13/python-list-1/">Older Posts<span class="arrow">→</span></a></span></nav></article></section><footer id="footer"><div id="social"><a class="symbol" href="https://github.com/kenhancoder"><i class="fa fa-github"></i></a></div><p class="small">© Copyright 2018 &nbsp;<i class="fa fa-heart" aria-hidden="true">&nbsp;Dxx</i></p><p class="small">Powered by &nbsp;<a href="https://hexo.io/">Hexo &nbsp;</a>Theme By &nbsp;<a href="https://github.com/fuzhouxxdong/hexo-theme-dxx">Dxx</a></p></footer><script>hljs.initHighlightingOnLoad();</script></body></html>
+<p>例子：<br>logging.yaml<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">logging:</span><br><span class="line">    version: 1</span><br><span class="line">    formatters:</span><br><span class="line">      brief:</span><br><span class="line">        format: &apos;%(message)s&apos;</span><br><span class="line">      default:</span><br><span class="line">        format: &apos;%(asctime)s %(levelname)-8s %(name)-15s %(message)s&apos;</span><br><span class="line">        datefmt: &apos;%Y-%m-%d %H:%M:%S&apos;</span><br><span class="line">      fluent_fmt:</span><br><span class="line">        &apos;()&apos;: fluent.handler.FluentRecordFormatter</span><br><span class="line">        format:</span><br><span class="line">          loglevel: &apos;%(levelname)s&apos;</span><br><span class="line">          hostname: &apos;%(hostname)s&apos;</span><br><span class="line">          where: &apos;%(module)s.%(funcName)s&apos;</span><br><span class="line">          stack_trace: &apos;%(exc_text)s&apos;</span><br><span class="line">    handlers:</span><br><span class="line">        console:</span><br><span class="line">            class : logging.StreamHandler</span><br><span class="line">            level: DEBUG</span><br><span class="line">            formatter: default</span><br><span class="line">            stream: ext://sys.stdout</span><br><span class="line">        fluent_dev:</span><br><span class="line">            class: fluent.handler.FluentHandler</span><br><span class="line">            host: 127.0.0.1</span><br><span class="line">            port: 24224</span><br><span class="line">            tag: test.dev</span><br><span class="line">            formatter: fluent_fmt</span><br><span class="line">            level: DEBUG</span><br><span class="line">        fluent_prod:</span><br><span class="line">            class: fluent.handler.FluentHandler</span><br><span class="line">            host: 127.0.0.1</span><br><span class="line">            port: 24224</span><br><span class="line">            tag: test.prod</span><br><span class="line">            formatter: fluent_fmt</span><br><span class="line">            level: DEBUG</span><br><span class="line">        null:</span><br><span class="line">            class: logging.NullHandler</span><br><span class="line"></span><br><span class="line">    loggers:</span><br><span class="line">        amqp:</span><br><span class="line">            handlers: [null]</span><br><span class="line">            propagate: False</span><br><span class="line">        conf:</span><br><span class="line">            handlers: [null]</span><br><span class="line">            propagate: False</span><br><span class="line">        dev:</span><br><span class="line">            handlers: [console, fluent_dev]</span><br><span class="line">            level: DEBUG</span><br><span class="line">            propagate: False</span><br><span class="line">        prod:</span><br><span class="line">            handlers: [console, fluent_prod]</span><br><span class="line">            level: DEBUG</span><br><span class="line">            propagate: False</span><br><span class="line">        &apos;&apos;: # root logger</span><br><span class="line">            handlers: [console]</span><br><span class="line">            level: DEBUG</span><br><span class="line">            propagate: False</span><br></pre></td></tr></table></figure></p>
+<p>导入配置方法：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">import yaml</span><br><span class="line">import logging</span><br><span class="line">import logging.config</span><br><span class="line"></span><br><span class="line">with open(&apos;logging.yaml&apos;) as fd:</span><br><span class="line">    conf = yaml.load(fd)</span><br><span class="line"></span><br><span class="line">logging.config.dictConfig(conf[&apos;logging&apos;])</span><br></pre></td></tr></table></figure></p>
+<p>获取logger<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">logger = logging.getLogger(loggername)</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/logging/" rel="tag"># logging</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/13/python-list-1/" rel="next" title="Python基础复习-List(一)">
+                <i class="fa fa-chevron-left"></i> Python基础复习-List(一)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/13/python-set-1/" rel="prev" title="Python基础复习-Set(一)">
+                Python基础复习-Set(一) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+      <div id="sidebar-dimmer"></div>
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">0x00hly</p>
+              <p class="site-description motion-element" itemprop="description">The road ahead will be long and our climb will be steep</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">categories</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">tags</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#logging"><span class="nav-number">1.</span> <span class="nav-text">logging</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Level"><span class="nav-number">2.</span> <span class="nav-text">Level</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Logger"><span class="nav-number">3.</span> <span class="nav-text">Logger</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Handler"><span class="nav-number">4.</span> <span class="nav-text">Handler</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Filter"><span class="nav-number">5.</span> <span class="nav-text">Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Formatter"><span class="nav-number">6.</span> <span class="nav-text">Formatter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用过程"><span class="nav-number">7.</span> <span class="nav-text">使用过程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">0x00hly</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
